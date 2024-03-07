@@ -197,7 +197,7 @@ if __name__ == '__main__':
     add_phone(conn, 3, 444444)
 
     change_client(conn, 1, 'Вася', 'Пупкин', 'pupok@mail.ru', 101010)
-    change_client(conn, 4, 'John', 'Персиков', 'persik@rambler.ru' , 202020)
+    change_client(conn, 4, 'John', 'Персиков', 'persik@rambler.ru', 202020)
     change_client(conn, 6, 'Верочка', 'Шапочкина', 'shapka55@mail.ru')
 
     delete_phone(conn, 1, 55555)

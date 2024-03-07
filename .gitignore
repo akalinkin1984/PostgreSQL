@@ -1,2 +1,5 @@
 Python_psycopg2/.idea
 Python_psycopg2/venv
+sql_alchemy/.idea
+sql_alchemy/__pycache__
+sql_alchemy/venv
