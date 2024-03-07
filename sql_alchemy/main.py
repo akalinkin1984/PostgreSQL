@@ -31,7 +31,7 @@ for s in data:
     session.add(eval(model)(id=s.get('pk'), **s.get('fields')))
 session.commit()
 
-input_publisher = input('Введите имя или id издателя(1-4): ')
+input_publisher = input('Введите имя или id издателя: ')
 
 if input_publisher.isdigit():
     res = (session.query(Book.title, Shop.name, Sale.price, Sale.date_sale)
