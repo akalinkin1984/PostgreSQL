@@ -1,8 +1,10 @@
-import sqlalchemy
-from sqlalchemy.orm import sessionmaker
-from models import create_tables, Publisher, Book, Stock, Shop, Sale
 import os
 import json
+
+import sqlalchemy
+from sqlalchemy.orm import sessionmaker
+
+from models import create_tables, Publisher, Book, Stock, Shop, Sale
 
 
 driver_db = input('Введите название СУБД: ')
@@ -16,42 +18,47 @@ DSN = f'{driver_db}://{login}:{password}@{host}:{port}/{name_db}'
 
 engine = sqlalchemy.create_engine(DSN)
 
-create_tables(engine)
-
 path = os.getcwd() + '\\tests_data.json'
+
+answer = input('Введите имя или id издателя: ')
 
 Session = sessionmaker(bind=engine)
 session = Session()
 
-with open(path, 'r') as f:
-    data = json.load(f)
 
-for s in data:
-    model = s.get('model').capitalize()
-    session.add(eval(model)(id=s.get('pk'), **s.get('fields')))
-session.commit()
+def entering_data(file, sess):
+    with open(file, 'r') as f:
+        data = json.load(f)
 
-input_publisher = input('Введите имя или id издателя: ')
+    for s in data:
+        model = s.get('model').capitalize()
+        sess.add(eval(model)(id=s.get('pk'), **s.get('fields')))
+    sess.commit()
 
-if input_publisher.isdigit():
-    res = (session.query(Book.title, Shop.name, Sale.price, Sale.date_sale)
-           .join(Publisher, Book.publishers)
+
+def getting_data(input_publisher, sess):
+    res = (sess.query(Book.title, Shop.name, Sale.price, Sale.date_sale)
+           .join(Publisher, Book.publisher)
            .join(Stock, Book.stocks)
-           .join(Shop, Stock.shops)
-           .join(Sale, Stock.sales)
-           .filter(Publisher.id == input_publisher)).all()
-else:
-    res = (session.query(Book.title, Shop.name, Sale.price, Sale.date_sale)
-           .join(Publisher, Book.publishers)
-           .join(Stock, Book.stocks)
-           .join(Shop, Stock.shops)
-           .join(Sale, Stock.sales)
-           .filter(Publisher.name == input_publisher)).all()
+           .join(Shop, Stock.shop)
+           .join(Sale, Stock.sales))
 
-if res:
-    for book, shop, price, date in res:
-        print(f'{book:40}| {shop:10}| {price:10}| {date:25}|')
-else:
-    print('Такого издателя нет в БД!')
+    if input_publisher.isdigit():
+        res = res.filter(Publisher.id == input_publisher).all()
+    else:
+        res = res.filter(Publisher.name == input_publisher).all()
+
+    if res:
+        for book, shop, price, date in res:
+            print(f'{book:40}| {shop:10}| {price:10}| {date:25}|')
+    else:
+        print('Такого издателя нет в БД!')
+
+
+if __name__ == '__main__':
+    create_tables(engine)
+    entering_data(path, session)
+    getting_data(answer, session)
+
 
 session.close()
